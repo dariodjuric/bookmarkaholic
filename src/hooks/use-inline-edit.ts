@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef, useCallback } from 'react'
-import type { Bookmark } from '@/types/bookmark'
 import { useBookmarkStore } from '@/stores/bookmark-store'
+import type { BookmarkOrFolder } from '@/types/bookmark'
+import { isBookmark } from '@/types/bookmark'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
 interface UseInlineEditOptions {
-  bookmark: Bookmark
+  bookmark: BookmarkOrFolder
   isRoot: boolean
 }
 
@@ -15,7 +16,9 @@ export function useInlineEdit({ bookmark, isRoot }: UseInlineEditOptions) {
   const isEditing = editingId === bookmark.id
 
   const [editTitle, setEditTitle] = useState(bookmark.title)
-  const [editUrl, setEditUrl] = useState(bookmark.url || '')
+  const [editUrl, setEditUrl] = useState(
+    isBookmark(bookmark) ? bookmark.url : ''
+  )
   const titleInputRef = useRef<HTMLInputElement>(null)
 
   // Focus input when entering edit mode
@@ -36,24 +39,17 @@ export function useInlineEdit({ bookmark, isRoot }: UseInlineEditOptions) {
   useEffect(() => {
     if (isEditing) {
       setEditTitle(bookmark.title)
-      setEditUrl(bookmark.url || '')
+      setEditUrl(isBookmark(bookmark) ? bookmark.url : '')
     }
-  }, [isEditing, bookmark.title, bookmark.url])
+  }, [isEditing, bookmark])
 
   const handleSave = useCallback(() => {
     if (isRoot) return
     saveBookmarkEdit(bookmark.id, {
       title: editTitle,
-      url: bookmark.isFolder ? undefined : editUrl,
+      url: isBookmark(bookmark) ? editUrl : undefined,
     })
-  }, [
-    bookmark.id,
-    bookmark.isFolder,
-    editTitle,
-    editUrl,
-    isRoot,
-    saveBookmarkEdit,
-  ])
+  }, [bookmark, editTitle, editUrl, isRoot, saveBookmarkEdit])
 
   const handleCancel = useCallback(() => {
     cancelEditing()

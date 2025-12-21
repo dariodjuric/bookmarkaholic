@@ -1,33 +1,34 @@
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { useInlineEdit } from '@/hooks/use-inline-edit'
+import { getDepthPadding } from '@/lib/bookmark-utils'
 import { isRootFolder } from '@/lib/chrome-bookmarks'
 import { cn } from '@/lib/utils'
-import { getDepthPadding } from '@/lib/bookmark-utils'
-import { useInlineEdit } from '@/hooks/use-inline-edit'
 import { useBookmarkStore } from '@/stores/bookmark-store'
-import DeleteDialog from './dialogs/delete-dialog'
-import AddFolderDialog from './dialogs/add-folder-dialog'
-import BookmarkNode from './bookmark-node'
-import type { Bookmark } from '@/types/bookmark'
+import type { Folder } from '@/types/bookmark'
+import { isFolder } from '@/types/bookmark'
 import {
   ArrowDownAZ,
   ChevronRight,
-  Folder,
+  Folder as FolderIcon,
   FolderOpen,
   FolderPlus,
   GripVertical,
   Trash2,
 } from 'lucide-react'
+import { useState } from 'react'
+import BookmarkNode from './bookmark-node'
+import AddFolderDialog from './dialogs/add-folder-dialog'
+import DeleteDialog from './dialogs/delete-dialog'
 
 interface FolderNodeProps {
-  bookmark: Bookmark
+  folder: Folder
   depth: number
 }
 
-export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
+export default function FolderNode({ folder, depth }: FolderNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true)
-  const [isAddFolderOpen, setIsAddFolderOpen] = useState(false)
+  const [isAddFolderOpen, setAddFolderOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
   const dragOverFolderId = useBookmarkStore((state) => state.dragOverFolderId)
@@ -49,8 +50,8 @@ export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
     (state) => state.clearHoveredBookmark
   )
 
-  const isRoot = isRootFolder(bookmark.id)
-  const isDragOverThis = dragOverFolderId === bookmark.id
+  const isRoot = isRootFolder(folder.id)
+  const isDragOverThis = dragOverFolderId === folder.id
 
   const {
     isEditing,
@@ -61,7 +62,7 @@ export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
     handleCancel,
     handleKeyDown,
   } = useInlineEdit({
-    bookmark,
+    bookmark: folder,
     isRoot,
   })
 
@@ -70,18 +71,18 @@ export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
       e.preventDefault()
       return
     }
-    startDragging(bookmark)
+    startDragging(folder)
     e.dataTransfer.effectAllowed = 'move'
   }
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault()
-    hoverDropTarget(bookmark.id)
+    hoverDropTarget(folder.id)
   }
 
   const handleDrop = (e: React.DragEvent) => {
     e.preventDefault()
-    dropIntoFolder(bookmark.id)
+    dropIntoFolder(folder.id)
   }
 
   const handleDragLeave = () => {
@@ -103,7 +104,7 @@ export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
         onDrop={handleDrop}
         onDragLeave={handleDragLeave}
         onDragEnd={endDrag}
-        onMouseEnter={() => setHoveredBookmark(bookmark.id)}
+        onMouseEnter={() => setHoveredBookmark(folder.id)}
         onMouseLeave={clearHoveredBookmark}
       >
         {!isRoot && (
@@ -124,7 +125,7 @@ export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
           {isExpanded ? (
             <FolderOpen className="h-4 w-4 text-amber-500" />
           ) : (
-            <Folder className="h-4 w-4 text-amber-500" />
+            <FolderIcon className="h-4 w-4 text-amber-500" />
           )}
         </button>
 
@@ -157,15 +158,16 @@ export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
             </Button>
           </div>
         ) : (
+          /* Read-Only Folder Title */
           <button
-            onClick={() => !isRoot && startEditing(bookmark.id)}
+            onClick={() => !isRoot && startEditing(folder.id)}
             className={cn(
               'flex flex-1 items-center gap-2 text-left min-w-0',
               !isRoot && 'cursor-pointer',
               isRoot && 'cursor-default'
             )}
           >
-            <span className="truncate max-w-48">{bookmark.title}</span>
+            <span className="truncate max-w-48">{folder.title}</span>
           </button>
         )}
 
@@ -177,7 +179,7 @@ export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
               className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
               onClick={(e) => {
                 e.stopPropagation()
-                sortFolderContents(bookmark.id)
+                sortFolderContents(folder.id)
               }}
               title="Sort by name"
             >
@@ -189,7 +191,7 @@ export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
               className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
               onClick={(e) => {
                 e.stopPropagation()
-                setIsAddFolderOpen(true)
+                setAddFolderOpen(true)
               }}
             >
               <FolderPlus className="size-4 text-muted-foreground" />
@@ -212,11 +214,11 @@ export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
         )}
       </div>
 
-      {isExpanded && bookmark.children && (
+      {isExpanded && (
         <div>
-          {bookmark.children.map((child) =>
-            child.isFolder ? (
-              <FolderNode key={child.id} bookmark={child} depth={depth + 1} />
+          {folder.children.map((child) =>
+            isFolder(child) ? (
+              <FolderNode key={child.id} folder={child} depth={depth + 1} />
             ) : (
               <BookmarkNode key={child.id} bookmark={child} depth={depth + 1} />
             )
@@ -226,15 +228,15 @@ export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
 
       <AddFolderDialog
         open={isAddFolderOpen}
-        onOpenChange={setIsAddFolderOpen}
-        onSubmit={(folderName) => addFolder(bookmark.id, folderName)}
+        onOpenChange={setAddFolderOpen}
+        onSubmit={(folderName) => addFolder(folder.id, folderName)}
       />
 
       <DeleteDialog
-        bookmark={bookmark}
+        folder={folder}
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={() => removeBookmark(bookmark.id)}
+        onConfirm={() => removeBookmark(folder.id)}
       />
     </div>
   )

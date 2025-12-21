@@ -7,27 +7,39 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog'
-import type { Bookmark } from '@/types/bookmark'
+import type { Bookmark, Folder } from '@/types/bookmark'
 import { countDescendants } from '@/lib/bookmark-utils'
 
-interface DeleteDialogProps {
-  bookmark: Bookmark
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onConfirm: () => void
-}
+type DeleteDialogProps =
+  | {
+      bookmark: Bookmark
+      folder?: never
+      open: boolean
+      onOpenChange: (open: boolean) => void
+      onConfirm: () => void
+    }
+  | {
+      bookmark?: never
+      folder: Folder
+      open: boolean
+      onOpenChange: (open: boolean) => void
+      onConfirm: () => void
+    }
 
 export default function DeleteDialog({
-  bookmark,
+  bookmark: _bookmark,
+  folder,
   open,
   onOpenChange,
   onConfirm,
 }: DeleteDialogProps) {
+  const isFolder = !!folder
+
   const getDescription = () => {
-    if (!bookmark.isFolder) {
+    if (!isFolder) {
       return 'This bookmark will be permanently deleted.'
     }
-    const count = countDescendants(bookmark)
+    const count = countDescendants(folder!)
     if (count > 0) {
       return `This folder contains ${count} bookmark${count === 1 ? '' : 's'}. All items will be permanently deleted.`
     }
@@ -38,9 +50,7 @@ export default function DeleteDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>
-            Delete {bookmark.isFolder ? 'Folder' : 'Bookmark'}?
-          </DialogTitle>
+          <DialogTitle>Delete {isFolder ? 'Folder' : 'Bookmark'}?</DialogTitle>
           <DialogDescription>{getDescription()}</DialogDescription>
         </DialogHeader>
         <DialogFooter>

@@ -1,12 +1,14 @@
-import type { Bookmark } from '@/types/bookmark'
+import type { Folder } from '@/types/bookmark'
+import { isFolder } from '@/types/bookmark'
 
 // Count total descendants in a folder (recursive)
-export function countDescendants(bookmark: Bookmark): number {
-  if (!bookmark.isFolder || !bookmark.children) return 0
-  return bookmark.children.reduce(
-    (count, child) => count + 1 + countDescendants(child),
-    0
-  )
+export function countDescendants(folder: Folder): number {
+  return folder.children.reduce((count, child) => {
+    if (isFolder(child)) {
+      return count + 1 + countDescendants(child)
+    }
+    return count + 1
+  }, 0)
 }
 
 // Calculate left padding based on depth

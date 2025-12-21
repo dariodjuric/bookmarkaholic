@@ -1,13 +1,13 @@
-import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { cn } from '@/lib/utils'
-import { getDepthPadding, getFaviconUrl } from '@/lib/bookmark-utils'
 import { useInlineEdit } from '@/hooks/use-inline-edit'
+import { getDepthPadding, getFaviconUrl } from '@/lib/bookmark-utils'
+import { cn } from '@/lib/utils'
 import { useBookmarkStore } from '@/stores/bookmark-store'
-import DeleteDialog from './dialogs/delete-dialog'
 import type { Bookmark } from '@/types/bookmark'
 import { ExternalLink, GripVertical, Trash2 } from 'lucide-react'
+import { useState } from 'react'
+import DeleteDialog from './dialogs/delete-dialog'
 
 interface BookmarkNodeProps {
   bookmark: Bookmark
@@ -15,7 +15,7 @@ interface BookmarkNodeProps {
 }
 
 export default function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const startEditing = useBookmarkStore((state) => state.startEditing)
   const removeBookmark = useBookmarkStore((state) => state.removeBookmark)
@@ -65,11 +65,7 @@ export default function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
         <GripVertical className="h-4 w-4 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
 
         <div className="flex items-center gap-1 pl-5">
-          <img
-            src={getFaviconUrl(bookmark.url || '')}
-            alt=""
-            className="h-4 w-4"
-          />
+          <img src={getFaviconUrl(bookmark.url)} alt="" className="h-4 w-4" />
         </div>
 
         {isEditing ? (
@@ -114,26 +110,22 @@ export default function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
               className="flex flex-1 items-center gap-2 text-left min-w-0 cursor-pointer"
             >
               <span className="truncate max-w-48">{bookmark.title}</span>
-              {bookmark.url && (
-                <span className="truncate max-w-72 text-xs text-muted-foreground">
-                  {bookmark.url}
-                </span>
-              )}
+              <span className="truncate max-w-72 text-xs text-muted-foreground">
+                {bookmark.url}
+              </span>
             </button>
-            {bookmark.url && (
-              <Button
-                variant="ghost"
-                size="icon"
-                className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  window.open(bookmark.url, '_blank', 'noopener,noreferrer')
-                }}
-                title="Open in new tab"
-              >
-                <ExternalLink className="size-4 text-muted-foreground" />
-              </Button>
-            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
+              onClick={(e) => {
+                e.stopPropagation()
+                window.open(bookmark.url, '_blank', 'noopener,noreferrer')
+              }}
+              title="Open in new tab"
+            >
+              <ExternalLink className="size-4 text-muted-foreground" />
+            </Button>
           </>
         )}
 
@@ -144,7 +136,7 @@ export default function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
             className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
             onClick={(e) => {
               e.stopPropagation()
-              setIsDeleteDialogOpen(true)
+              setDeleteDialogOpen(true)
             }}
           >
             <Trash2 className="size-4 text-destructive" />
@@ -155,7 +147,7 @@ export default function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
       <DeleteDialog
         bookmark={bookmark}
         open={isDeleteDialogOpen}
-        onOpenChange={setIsDeleteDialogOpen}
+        onOpenChange={setDeleteDialogOpen}
         onConfirm={() => removeBookmark(bookmark.id)}
       />
     </div>

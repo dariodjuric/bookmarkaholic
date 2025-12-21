@@ -1,21 +1,31 @@
-import type { Bookmark } from '../types/bookmark'
+import type { Bookmark, BookmarkOrFolder, Folder } from '../types/bookmark'
+import { isFolder } from '../types/bookmark'
 
-// Convert Chrome's BookmarkTreeNode to our Bookmark type
+// Convert Chrome's BookmarkTreeNode to our BookmarkNode type
 export function mapChromeBookmark(
   node: chrome.bookmarks.BookmarkTreeNode
-): Bookmark {
-  return {
-    id: node.id,
-    title: node.title,
-    url: node.url,
-    isFolder: !node.url,
-    children: node.children?.map(mapChromeBookmark),
-    parentId: node.parentId ?? null,
+): BookmarkOrFolder {
+  if (node.url) {
+    // It's a bookmark
+    return {
+      id: node.id,
+      title: node.title,
+      url: node.url,
+      parentId: node.parentId ?? null,
+    } satisfies Bookmark
+  } else {
+    // It's a folder
+    return {
+      id: node.id,
+      title: node.title,
+      children: node.children?.map(mapChromeBookmark) ?? [],
+      parentId: node.parentId ?? null,
+    } satisfies Folder
   }
 }
 
 // Fetch all bookmarks from Chrome
-export async function fetchBookmarks(): Promise<Bookmark[]> {
+export async function fetchBookmarks(): Promise<BookmarkOrFolder[]> {
   const tree = await chrome.bookmarks.getTree()
   // The root node (id "0") contains the main bookmark folders
   // We return its children which are the top-level folders
@@ -44,15 +54,12 @@ export async function updateBookmark(
   return chrome.bookmarks.update(id, changes)
 }
 
-// Delete a bookmark (use removeTree for folders with children)
-export async function deleteBookmark(
-  id: string,
-  isFolder: boolean
-): Promise<void> {
-  if (isFolder) {
-    await chrome.bookmarks.removeTree(id)
+// Delete a bookmark or folder
+export async function deleteBookmark(node: BookmarkOrFolder): Promise<void> {
+  if (isFolder(node)) {
+    await chrome.bookmarks.removeTree(node.id)
   } else {
-    await chrome.bookmarks.remove(id)
+    await chrome.bookmarks.remove(node.id)
   }
 }
 

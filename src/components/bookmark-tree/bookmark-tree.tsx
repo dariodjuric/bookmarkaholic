@@ -1,19 +1,22 @@
-import type { Bookmark } from '@/types/bookmark'
-import BookmarkNode from './bookmark-node'
+import type { BookmarkOrFolder } from '@/types/bookmark'
+import { isFolder } from '@/types/bookmark'
+import BookmarkNodeComponent from './bookmark-node'
 import FolderNode from './folder-node'
 
 interface BookmarkTreeProps {
-  bookmarks: Bookmark[]
+  bookmarksOrFolders: BookmarkOrFolder[]
 }
 
-export default function BookmarkTree({ bookmarks }: BookmarkTreeProps) {
+export default function BookmarkTree({
+  bookmarksOrFolders,
+}: BookmarkTreeProps) {
   return (
     <>
-      {bookmarks.map((bookmark) =>
-        bookmark.isFolder ? (
-          <FolderNode key={bookmark.id} bookmark={bookmark} depth={0} />
+      {bookmarksOrFolders.map((node) =>
+        isFolder(node) ? (
+          <FolderNode key={node.id} folder={node} depth={0} />
         ) : (
-          <BookmarkNode key={bookmark.id} bookmark={bookmark} depth={0} />
+          <BookmarkNodeComponent key={node.id} bookmark={node} depth={0} />
         )
       )}
     </>
