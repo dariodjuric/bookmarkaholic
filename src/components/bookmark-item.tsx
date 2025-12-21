@@ -1,23 +1,30 @@
-import type React from "react"
-import { useState, useRef, useEffect } from "react"
-import type { Bookmark } from "@/types/bookmark"
-import { ChevronRight, Folder, FolderOpen, Link, Trash2, GripVertical } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { cn } from "@/lib/utils"
-import { isRootFolder } from "@/lib/chrome-bookmarks"
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
+import type { Bookmark } from "@/types/bookmark";
+import {
+  ChevronRight,
+  Folder,
+  FolderOpen,
+  Link,
+  Trash2,
+  GripVertical,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import { isRootFolder } from "@/lib/chrome-bookmarks";
 
 interface BookmarkItemProps {
-  bookmark: Bookmark
-  depth: number
-  onUpdate: (id: string, updates: Partial<Bookmark>) => void
-  onDelete: (id: string) => void
-  onDragStart: (e: React.DragEvent, bookmark: Bookmark) => void
-  onDragOver: (e: React.DragEvent, bookmark: Bookmark) => void
-  onDrop: (e: React.DragEvent, targetBookmark: Bookmark) => void
-  onDragEnd: () => void
-  isDragOver: boolean
-  dragOverId: string | null
+  bookmark: Bookmark;
+  depth: number;
+  onUpdate: (id: string, updates: Partial<Bookmark>) => void;
+  onDelete: (id: string) => void;
+  onDragStart: (e: React.DragEvent, bookmark: Bookmark) => void;
+  onDragOver: (e: React.DragEvent, bookmark: Bookmark) => void;
+  onDrop: (e: React.DragEvent, targetBookmark: Bookmark) => void;
+  onDragEnd: () => void;
+  isDragOver: boolean;
+  dragOverId: string | null;
 }
 
 export function BookmarkItem({
@@ -31,45 +38,45 @@ export function BookmarkItem({
   onDragEnd,
   dragOverId,
 }: BookmarkItemProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
-  const [isEditing, setIsEditing] = useState(false)
-  const [editTitle, setEditTitle] = useState(bookmark.title)
-  const [editUrl, setEditUrl] = useState(bookmark.url || "")
-  const titleInputRef = useRef<HTMLInputElement>(null)
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState(bookmark.title);
+  const [editUrl, setEditUrl] = useState(bookmark.url || "");
+  const titleInputRef = useRef<HTMLInputElement>(null);
 
   // Check if this is a root folder that can't be edited/deleted
-  const isRoot = isRootFolder(bookmark.id)
+  const isRoot = isRootFolder(bookmark.id);
 
   useEffect(() => {
     if (isEditing && titleInputRef.current) {
-      titleInputRef.current.focus()
+      titleInputRef.current.focus();
     }
-  }, [isEditing])
+  }, [isEditing]);
 
   const handleSave = () => {
-    if (isRoot) return
+    if (isRoot) return;
     onUpdate(bookmark.id, {
       title: editTitle,
       url: bookmark.isFolder ? undefined : editUrl,
-    })
-    setIsEditing(false)
-  }
+    });
+    setIsEditing(false);
+  };
 
   const handleCancel = () => {
-    setEditTitle(bookmark.title)
-    setEditUrl(bookmark.url || "")
-    setIsEditing(false)
-  }
+    setEditTitle(bookmark.title);
+    setEditUrl(bookmark.url || "");
+    setIsEditing(false);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") {
-      handleSave()
+      handleSave();
     } else if (e.key === "Escape") {
-      handleCancel()
+      handleCancel();
     }
-  }
+  };
 
-  const isDragOverThis = dragOverId === bookmark.id
+  const isDragOverThis = dragOverId === bookmark.id;
 
   return (
     <div className="select-none">
@@ -77,7 +84,9 @@ export function BookmarkItem({
         className={cn(
           "group flex items-center gap-1 rounded-md px-2 py-1.5 transition-colors",
           "hover:bg-accent",
-          isDragOverThis && bookmark.isFolder && "bg-accent ring-2 ring-primary",
+          isDragOverThis &&
+            bookmark.isFolder &&
+            "bg-accent ring-2 ring-primary",
         )}
         style={{ paddingLeft: `${depth * 20 + 8}px` }}
         draggable={!isEditing && !isRoot}
@@ -94,9 +103,14 @@ export function BookmarkItem({
         {bookmark.isFolder ? (
           <button
             onClick={() => setIsExpanded(!isExpanded)}
-            className="flex items-center gap-1 text-muted-foreground hover:text-foreground"
+            className="flex items-center gap-1 cursor-pointer text-muted-foreground hover:text-foreground"
           >
-            <ChevronRight className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-90")} />
+            <ChevronRight
+              className={cn(
+                "h-4 w-4 transition-transform",
+                isExpanded && "rotate-90",
+              )}
+            />
             {isExpanded ? (
               <FolderOpen className="h-4 w-4 text-amber-500" />
             ) : (
@@ -128,10 +142,16 @@ export function BookmarkItem({
                 className="h-7 flex-1"
               />
             )}
-            <Button size="sm" className="h-7 px-2" onClick={handleSave}>
+            <Button type="button" size="sm" className="h-7 px-2" onClick={handleSave}>
               Save
             </Button>
-            <Button size="sm" variant="outline" className="h-7 px-2 bg-transparent" onClick={handleCancel}>
+            <Button
+              type="button"
+              size="sm"
+              variant="outline"
+              className="h-7 px-2 bg-transparent"
+              onClick={handleCancel}
+            >
               Cancel
             </Button>
           </div>
@@ -139,13 +159,16 @@ export function BookmarkItem({
           <button
             onClick={() => !isRoot && setIsEditing(true)}
             className={cn(
-              "flex flex-1 items-center gap-2 text-left",
-              isRoot && "cursor-default"
+              "flex flex-1 items-center gap-2 text-left min-w-0",
+              !isRoot && !bookmark.isFolder && "cursor-pointer",
+              isRoot && "cursor-default",
             )}
           >
-            <span className="truncate">{bookmark.title}</span>
+            <span className="truncate max-w-48">{bookmark.title}</span>
             {!bookmark.isFolder && bookmark.url && (
-              <span className="truncate text-xs text-muted-foreground">{bookmark.url}</span>
+              <span className="truncate max-w-72 text-xs text-muted-foreground">
+                {bookmark.url}
+              </span>
             )}
           </button>
         )}
@@ -156,8 +179,8 @@ export function BookmarkItem({
             size="icon"
             className="h-7 w-7 opacity-0 transition-opacity group-hover:opacity-100"
             onClick={(e) => {
-              e.stopPropagation()
-              onDelete(bookmark.id)
+              e.stopPropagation();
+              onDelete(bookmark.id);
             }}
           >
             <Trash2 className="h-4 w-4 text-destructive" />
@@ -185,5 +208,5 @@ export function BookmarkItem({
         </div>
       )}
     </div>
-  )
+  );
 }

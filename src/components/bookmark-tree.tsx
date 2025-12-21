@@ -25,16 +25,16 @@ export function BookmarkTree() {
     loadBookmarks()
   }, [])
 
-  const loadBookmarks = async () => {
+  const loadBookmarks = async (showLoading = true) => {
     try {
-      setLoading(true)
+      if (showLoading) setLoading(true)
       setError(null)
       const data = await fetchBookmarks()
       setBookmarks(data)
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to load bookmarks')
     } finally {
-      setLoading(false)
+      if (showLoading) setLoading(false)
     }
   }
 
@@ -59,7 +59,7 @@ export function BookmarkTree() {
           title: updates.title,
           url: updates.url,
         })
-        await loadBookmarks()
+        await loadBookmarks(false)
       } catch (err) {
         console.error('Failed to update bookmark:', err)
       }
@@ -76,7 +76,7 @@ export function BookmarkTree() {
         const bookmark = findBookmarkById(id, bookmarks)
         if (bookmark) {
           await deleteBookmark(id, bookmark.isFolder)
-          await loadBookmarks()
+          await loadBookmarks(false)
         }
       } catch (err) {
         console.error('Failed to delete bookmark:', err)
@@ -135,7 +135,7 @@ export function BookmarkTree() {
       if (targetBookmark.isFolder) {
         try {
           await moveBookmark(draggedBookmark.id, { parentId: targetBookmark.id })
-          await loadBookmarks()
+          await loadBookmarks(false)
         } catch (err) {
           console.error('Failed to move bookmark:', err)
         }
@@ -154,7 +154,7 @@ export function BookmarkTree() {
       // Add to the first folder (Bookmarks Bar) by default
       const parentId = bookmarks[0]?.id || '1'
       await createBookmark(parentId, "New Bookmark", "https://example.com")
-      await loadBookmarks()
+      await loadBookmarks(false)
     } catch (err) {
       console.error('Failed to create bookmark:', err)
     }
@@ -165,7 +165,7 @@ export function BookmarkTree() {
       // Add to the first folder (Bookmarks Bar) by default
       const parentId = bookmarks[0]?.id || '1'
       await createBookmark(parentId, "New Folder")
-      await loadBookmarks()
+      await loadBookmarks(false)
     } catch (err) {
       console.error('Failed to create folder:', err)
     }
