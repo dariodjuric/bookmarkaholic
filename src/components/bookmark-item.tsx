@@ -4,6 +4,7 @@ import type { Bookmark } from "@/types/bookmark";
 import {
   ArrowDownAZ,
   ChevronRight,
+  ExternalLink,
   Folder,
   FolderOpen,
   FolderPlus,
@@ -224,21 +225,37 @@ export function BookmarkItem({
             </Button>
           </div>
         ) : (
-          <button
-            onClick={() => !isRoot && onSetEditingId(bookmark.id)}
-            className={cn(
-              "flex flex-1 items-center gap-2 text-left min-w-0",
-              !isRoot && !bookmark.isFolder && "cursor-pointer",
-              isRoot && "cursor-default",
-            )}
-          >
-            <span className="truncate max-w-48">{bookmark.title}</span>
+          <>
+            <button
+              onClick={() => !isRoot && onSetEditingId(bookmark.id)}
+              className={cn(
+                "flex flex-1 items-center gap-2 text-left min-w-0",
+                !isRoot && !bookmark.isFolder && "cursor-pointer",
+                isRoot && "cursor-default",
+              )}
+            >
+              <span className="truncate max-w-48">{bookmark.title}</span>
+              {!bookmark.isFolder && bookmark.url && (
+                <span className="truncate max-w-72 text-xs text-muted-foreground">
+                  {bookmark.url}
+                </span>
+              )}
+            </button>
             {!bookmark.isFolder && bookmark.url && (
-              <span className="truncate max-w-72 text-xs text-muted-foreground">
-                {bookmark.url}
-              </span>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  window.open(bookmark.url, "_blank", "noopener,noreferrer");
+                }}
+                title="Open in new tab"
+              >
+                <ExternalLink className="size-4 text-muted-foreground" />
+              </Button>
             )}
-          </button>
+          </>
         )}
 
         {!isEditing && bookmark.isFolder && (

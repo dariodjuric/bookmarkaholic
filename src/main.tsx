@@ -13,5 +13,5 @@ createRoot(document.getElementById("root")!).render(
         <BookmarkTree />
       </div>
     </div>
-  </StrictMode>,
+  </StrictMode>
 );
