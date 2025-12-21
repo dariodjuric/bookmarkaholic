@@ -1,21 +1,19 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import type { Bookmark } from '@/types/bookmark'
+import { useBookmarkStore } from '@/stores/bookmark-store'
 
 interface UseInlineEditOptions {
   bookmark: Bookmark
-  isEditing: boolean
-  onUpdate: (id: string, updates: Partial<Bookmark>) => void
-  onSetEditingId: (id: string | null) => void
   isRoot: boolean
 }
 
-export function useInlineEdit({
-  bookmark,
-  isEditing,
-  onUpdate,
-  onSetEditingId,
-  isRoot,
-}: UseInlineEditOptions) {
+export function useInlineEdit({ bookmark, isRoot }: UseInlineEditOptions) {
+  const editingId = useBookmarkStore((state) => state.editingId)
+  const saveBookmarkEdit = useBookmarkStore((state) => state.saveBookmarkEdit)
+  const cancelEditing = useBookmarkStore((state) => state.cancelEditing)
+
+  const isEditing = editingId === bookmark.id
+
   const [editTitle, setEditTitle] = useState(bookmark.title)
   const [editUrl, setEditUrl] = useState(bookmark.url || '')
   const titleInputRef = useRef<HTMLInputElement>(null)
@@ -44,15 +42,22 @@ export function useInlineEdit({
 
   const handleSave = useCallback(() => {
     if (isRoot) return
-    onUpdate(bookmark.id, {
+    saveBookmarkEdit(bookmark.id, {
       title: editTitle,
       url: bookmark.isFolder ? undefined : editUrl,
     })
-  }, [bookmark.id, bookmark.isFolder, editTitle, editUrl, isRoot, onUpdate])
+  }, [
+    bookmark.id,
+    bookmark.isFolder,
+    editTitle,
+    editUrl,
+    isRoot,
+    saveBookmarkEdit,
+  ])
 
   const handleCancel = useCallback(() => {
-    onSetEditingId(null)
-  }, [onSetEditingId])
+    cancelEditing()
+  }, [cancelEditing])
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
@@ -68,6 +73,7 @@ export function useInlineEdit({
   )
 
   return {
+    isEditing,
     editTitle,
     setEditTitle,
     editUrl,

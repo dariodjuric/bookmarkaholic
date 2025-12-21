@@ -4,26 +4,32 @@ import { Input } from '@/components/ui/input'
 import { cn } from '@/lib/utils'
 import { getDepthPadding, getFaviconUrl } from '@/lib/bookmark-utils'
 import { useInlineEdit } from '@/hooks/use-inline-edit'
+import { useBookmarkStore } from '@/stores/bookmark-store'
 import DeleteDialog from './dialogs/delete-dialog'
-import type { BookmarkNodeProps } from '@/types/bookmark-props'
+import type { Bookmark } from '@/types/bookmark'
 import { ExternalLink, GripVertical, Trash2 } from 'lucide-react'
 
-export default function BookmarkNode({
-  bookmark,
-  depth,
-  isEditing,
-  onUpdate,
-  onDelete,
-  onSetEditingId,
-  onHover,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
-}: BookmarkNodeProps) {
+interface BookmarkNodeProps {
+  bookmark: Bookmark
+  depth: number
+}
+
+export default function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
+  const startEditing = useBookmarkStore((state) => state.startEditing)
+  const removeBookmark = useBookmarkStore((state) => state.removeBookmark)
+  const startDragging = useBookmarkStore((state) => state.startDragging)
+  const endDrag = useBookmarkStore((state) => state.endDrag)
+  const setHoveredBookmark = useBookmarkStore(
+    (state) => state.setHoveredBookmark
+  )
+  const clearHoveredBookmark = useBookmarkStore(
+    (state) => state.clearHoveredBookmark
+  )
+
   const {
+    isEditing,
     editTitle,
     setEditTitle,
     editUrl,
@@ -34,11 +40,13 @@ export default function BookmarkNode({
     handleKeyDown,
   } = useInlineEdit({
     bookmark,
-    isEditing,
-    onUpdate,
-    onSetEditingId,
     isRoot: false,
   })
+
+  const handleDragStart = (e: React.DragEvent) => {
+    startDragging(bookmark)
+    e.dataTransfer.effectAllowed = 'move'
+  }
 
   return (
     <div className="select-none">
@@ -49,12 +57,10 @@ export default function BookmarkNode({
         )}
         style={{ paddingLeft: getDepthPadding(depth) }}
         draggable={!isEditing}
-        onDragStart={(e) => onDragStart(e, bookmark)}
-        onDragOver={(e) => onDragOver(e, bookmark)}
-        onDrop={(e) => onDrop(e, bookmark)}
-        onDragEnd={onDragEnd}
-        onMouseEnter={() => onHover(bookmark.id)}
-        onMouseLeave={() => onHover(null)}
+        onDragStart={handleDragStart}
+        onDragEnd={endDrag}
+        onMouseEnter={() => setHoveredBookmark(bookmark.id)}
+        onMouseLeave={clearHoveredBookmark}
       >
         <GripVertical className="h-4 w-4 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
 
@@ -104,7 +110,7 @@ export default function BookmarkNode({
         ) : (
           <>
             <button
-              onClick={() => onSetEditingId(bookmark.id)}
+              onClick={() => startEditing(bookmark.id)}
               className="flex flex-1 items-center gap-2 text-left min-w-0 cursor-pointer"
             >
               <span className="truncate max-w-48">{bookmark.title}</span>
@@ -150,7 +156,7 @@ export default function BookmarkNode({
         bookmark={bookmark}
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={() => onDelete(bookmark.id)}
+        onConfirm={() => removeBookmark(bookmark.id)}
       />
     </div>
   )

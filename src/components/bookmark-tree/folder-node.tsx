@@ -5,10 +5,11 @@ import { isRootFolder } from '@/lib/chrome-bookmarks'
 import { cn } from '@/lib/utils'
 import { getDepthPadding } from '@/lib/bookmark-utils'
 import { useInlineEdit } from '@/hooks/use-inline-edit'
+import { useBookmarkStore } from '@/stores/bookmark-store'
 import DeleteDialog from './dialogs/delete-dialog'
 import AddFolderDialog from './dialogs/add-folder-dialog'
 import BookmarkNode from './bookmark-node'
-import type { FolderNodeProps } from '@/types/bookmark-props'
+import type { Bookmark } from '@/types/bookmark'
 import {
   ArrowDownAZ,
   ChevronRight,
@@ -19,31 +20,40 @@ import {
   Trash2,
 } from 'lucide-react'
 
-export default function FolderNode({
-  bookmark,
-  depth,
-  isEditing,
-  editingId,
-  dragOverId,
-  onUpdate,
-  onDelete,
-  onAddFolder,
-  onSortFolder,
-  onSetEditingId,
-  onHover,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
-}: FolderNodeProps) {
+interface FolderNodeProps {
+  bookmark: Bookmark
+  depth: number
+}
+
+export default function FolderNode({ bookmark, depth }: FolderNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true)
   const [isAddFolderOpen, setIsAddFolderOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
+  const dragOverFolderId = useBookmarkStore((state) => state.dragOverFolderId)
+  const startEditing = useBookmarkStore((state) => state.startEditing)
+  const removeBookmark = useBookmarkStore((state) => state.removeBookmark)
+  const addFolder = useBookmarkStore((state) => state.addFolder)
+  const sortFolderContents = useBookmarkStore(
+    (state) => state.sortFolderContents
+  )
+  const startDragging = useBookmarkStore((state) => state.startDragging)
+  const hoverDropTarget = useBookmarkStore((state) => state.hoverDropTarget)
+  const clearDropTarget = useBookmarkStore((state) => state.clearDropTarget)
+  const dropIntoFolder = useBookmarkStore((state) => state.dropIntoFolder)
+  const endDrag = useBookmarkStore((state) => state.endDrag)
+  const setHoveredBookmark = useBookmarkStore(
+    (state) => state.setHoveredBookmark
+  )
+  const clearHoveredBookmark = useBookmarkStore(
+    (state) => state.clearHoveredBookmark
+  )
+
   const isRoot = isRootFolder(bookmark.id)
-  const isDragOverThis = dragOverId === bookmark.id
+  const isDragOverThis = dragOverFolderId === bookmark.id
 
   const {
+    isEditing,
     editTitle,
     setEditTitle,
     titleInputRef,
@@ -52,11 +62,31 @@ export default function FolderNode({
     handleKeyDown,
   } = useInlineEdit({
     bookmark,
-    isEditing,
-    onUpdate,
-    onSetEditingId,
     isRoot,
   })
+
+  const handleDragStart = (e: React.DragEvent) => {
+    if (isRoot) {
+      e.preventDefault()
+      return
+    }
+    startDragging(bookmark)
+    e.dataTransfer.effectAllowed = 'move'
+  }
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    hoverDropTarget(bookmark.id)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    dropIntoFolder(bookmark.id)
+  }
+
+  const handleDragLeave = () => {
+    clearDropTarget()
+  }
 
   return (
     <div className="select-none">
@@ -68,12 +98,13 @@ export default function FolderNode({
         )}
         style={{ paddingLeft: getDepthPadding(depth) }}
         draggable={!isEditing && !isRoot}
-        onDragStart={(e) => onDragStart(e, bookmark)}
-        onDragOver={(e) => onDragOver(e, bookmark)}
-        onDrop={(e) => onDrop(e, bookmark)}
-        onDragEnd={onDragEnd}
-        onMouseEnter={() => onHover(bookmark.id)}
-        onMouseLeave={() => onHover(null)}
+        onDragStart={handleDragStart}
+        onDragOver={handleDragOver}
+        onDrop={handleDrop}
+        onDragLeave={handleDragLeave}
+        onDragEnd={endDrag}
+        onMouseEnter={() => setHoveredBookmark(bookmark.id)}
+        onMouseLeave={clearHoveredBookmark}
       >
         {!isRoot && (
           <GripVertical className="h-4 w-4 cursor-grab text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
@@ -127,7 +158,7 @@ export default function FolderNode({
           </div>
         ) : (
           <button
-            onClick={() => !isRoot && onSetEditingId(bookmark.id)}
+            onClick={() => !isRoot && startEditing(bookmark.id)}
             className={cn(
               'flex flex-1 items-center gap-2 text-left min-w-0',
               !isRoot && 'cursor-pointer',
@@ -146,7 +177,7 @@ export default function FolderNode({
               className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
               onClick={(e) => {
                 e.stopPropagation()
-                onSortFolder(bookmark.id)
+                sortFolderContents(bookmark.id)
               }}
               title="Sort by name"
             >
@@ -185,40 +216,9 @@ export default function FolderNode({
         <div>
           {bookmark.children.map((child) =>
             child.isFolder ? (
-              <FolderNode
-                key={child.id}
-                bookmark={child}
-                depth={depth + 1}
-                isEditing={editingId === child.id}
-                editingId={editingId}
-                dragOverId={dragOverId}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-                onAddFolder={onAddFolder}
-                onSortFolder={onSortFolder}
-                onSetEditingId={onSetEditingId}
-                onHover={onHover}
-                onDragStart={onDragStart}
-                onDragOver={onDragOver}
-                onDrop={onDrop}
-                onDragEnd={onDragEnd}
-              />
+              <FolderNode key={child.id} bookmark={child} depth={depth + 1} />
             ) : (
-              <BookmarkNode
-                key={child.id}
-                bookmark={child}
-                depth={depth + 1}
-                isEditing={editingId === child.id}
-                dragOverId={dragOverId}
-                onUpdate={onUpdate}
-                onDelete={onDelete}
-                onSetEditingId={onSetEditingId}
-                onHover={onHover}
-                onDragStart={onDragStart}
-                onDragOver={onDragOver}
-                onDrop={onDrop}
-                onDragEnd={onDragEnd}
-              />
+              <BookmarkNode key={child.id} bookmark={child} depth={depth + 1} />
             )
           )}
         </div>
@@ -227,14 +227,14 @@ export default function FolderNode({
       <AddFolderDialog
         open={isAddFolderOpen}
         onOpenChange={setIsAddFolderOpen}
-        onSubmit={(folderName) => onAddFolder(bookmark.id, folderName)}
+        onSubmit={(folderName) => addFolder(bookmark.id, folderName)}
       />
 
       <DeleteDialog
         bookmark={bookmark}
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
-        onConfirm={() => onDelete(bookmark.id)}
+        onConfirm={() => removeBookmark(bookmark.id)}
       />
     </div>
   )
