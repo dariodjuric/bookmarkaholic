@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogFooter,
@@ -62,8 +63,18 @@ export function BookmarkItem({
   const [editUrl, setEditUrl] = useState(bookmark.url || "");
   const [isAddFolderOpen, setIsAddFolderOpen] = useState(false);
   const [newFolderName, setNewFolderName] = useState("");
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const titleInputRef = useRef<HTMLInputElement>(null);
   const folderNameInputRef = useRef<HTMLInputElement>(null);
+
+  // Count total bookmarks in a folder (recursive)
+  const countDescendants = (bm: Bookmark): number => {
+    if (!bm.isFolder || !bm.children) return 0;
+    return bm.children.reduce(
+      (count, child) => count + 1 + countDescendants(child),
+      0
+    );
+  };
 
   // Check if this is a root folder that can't be edited/deleted
   const isRoot = isRootFolder(bookmark.id);
@@ -261,7 +272,7 @@ export function BookmarkItem({
             className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
             onClick={(e) => {
               e.stopPropagation();
-              onDelete(bookmark.id);
+              setIsDeleteDialogOpen(true);
             }}
           >
             <Trash2 className="size-4 text-destructive" />
@@ -314,6 +325,43 @@ export function BookmarkItem({
               Cancel
             </Button>
             <Button onClick={handleAddFolderSubmit}>Create</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              Delete {bookmark.isFolder ? "Folder" : "Bookmark"}?
+            </DialogTitle>
+            <DialogDescription>
+              {bookmark.isFolder ? (
+                (() => {
+                  const count = countDescendants(bookmark);
+                  return count > 0
+                    ? `This folder contains ${count} bookmark${count === 1 ? "" : "s"}. All items will be permanently deleted.`
+                    : "This empty folder will be permanently deleted.";
+                })()
+              ) : (
+                "This bookmark will be permanently deleted."
+              )}
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              autoFocus
+              onClick={() => {
+                onDelete(bookmark.id);
+                setIsDeleteDialogOpen(false);
+              }}
+            >
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
