@@ -1,7 +1,7 @@
 import type React from 'react'
 import { useState, useCallback, useEffect } from 'react'
 import type { Bookmark } from '@/types/bookmark'
-import { BookmarkItem } from './bookmark-item'
+import BookmarkTree from './bookmark-tree'
 import { BookmarkPlus, Loader2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import {
@@ -14,7 +14,7 @@ import {
   isRootFolder,
 } from '@/lib/chrome-bookmarks'
 
-export function BookmarkTree() {
+export default function MainPage() {
   const [bookmarks, setBookmarks] = useState<Bookmark[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -256,26 +256,21 @@ export function BookmarkTree() {
             <p className="text-sm">Add a bookmark or folder to get started</p>
           </div>
         ) : (
-          bookmarks.map((bookmark) => (
-            <BookmarkItem
-              key={bookmark.id}
-              bookmark={bookmark}
-              depth={0}
-              onUpdate={handleUpdate}
-              onDelete={handleDelete}
-              onAddFolder={handleAddFolder}
-              onSortFolder={handleSortFolder}
-              onDragStart={handleDragStart}
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              onDragEnd={handleDragEnd}
-              isDragOver={dragOverId === bookmark.id}
-              dragOverId={dragOverId}
-              editingId={editingId}
-              onSetEditingId={setEditingId}
-              onHover={setHoveredId}
-            />
-          ))
+          <BookmarkTree
+            bookmarks={bookmarks}
+            dragOverId={dragOverId}
+            editingId={editingId}
+            onUpdate={handleUpdate}
+            onDelete={handleDelete}
+            onAddFolder={handleAddFolder}
+            onSortFolder={handleSortFolder}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            onDragEnd={handleDragEnd}
+            onSetEditingId={setEditingId}
+            onHover={setHoveredId}
+          />
         )}
       </div>
     </div>

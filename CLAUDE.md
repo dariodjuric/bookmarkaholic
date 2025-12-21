@@ -20,8 +20,10 @@ This is a Chrome Extension bookmark manager built with Vite, React 18, Tailwind 
 
 - `manifest.json` - Chrome Extension manifest v3 configuration
 - `src/types/bookmark.ts` - Core `Bookmark` interface (id, title, url, isFolder, children, parentId)
-- `src/components/bookmark-tree.tsx` - Main bookmark manager with drag-and-drop and CRUD operations
-- `src/components/bookmark-item.tsx` - Recursive component for individual bookmarks/folders with inline editing
+- `src/components/bookmark-tree/main-page.tsx` - Main page with state management and CRUD operations
+- `src/components/bookmark-tree/bookmark-tree.tsx` - Tree container that renders nodes
+- `src/components/bookmark-tree/bookmark-node.tsx` - Individual bookmark component
+- `src/components/bookmark-tree/folder-node.tsx` - Folder component with expansion and children
 - `src/lib/chrome-bookmarks.ts` - Chrome Bookmarks API wrapper (fetch, create, update, delete, move, sort)
 - `src/components/ui/` - shadcn/ui component library
 - `src/background.ts` - Extension service worker
@@ -45,3 +47,8 @@ Uses Tailwind CSS 4 with PostCSS. The `cn()` utility in `src/lib/utils.ts` combi
 - Path alias `@` maps to `./src`
 - Build output goes to `dist/` folder
 - Load unpacked extension from `dist/` in Chrome for testing
+
+## Code Style
+
+- Use default exports for React components, not named exports
+- Do not use barrel exports (index.ts files that re-export from other files)

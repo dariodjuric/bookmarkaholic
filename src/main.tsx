@@ -1,6 +1,6 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BookmarkTree } from './components/bookmark-tree'
+import MainPage from './components/bookmark-tree/main-page'
 import './index.css'
 
 createRoot(document.getElementById('root')!).render(
@@ -10,7 +10,7 @@ createRoot(document.getElementById('root')!).render(
         <h1 className="mb-6 text-3xl font-bold text-foreground">
           Bookmarkaholic
         </h1>
-        <BookmarkTree />
+        <MainPage />
       </div>
     </div>
   </StrictMode>
