@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Bookmarkaholic",
   "version": "1.0.0",
-  "description": "A beautiful bookmark manager with drag-and-drop support",
+  "description": "Curate your links at lightning speed.",
   "permissions": ["bookmarks"],
   "action": {
     "default_icon": "icon.svg"

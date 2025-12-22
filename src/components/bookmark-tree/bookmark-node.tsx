@@ -119,7 +119,7 @@ function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
           >
             <span className="truncate max-w-48">{bookmark.title}</span>
             <div className="flex items-center gap-1 min-w-0">
-              <span className="truncate max-w-72 text-xs text-muted-foreground">
+              <span className="truncate max-w-8/12 text-xs text-muted-foreground">
                 {bookmark.url}
               </span>
               <Tooltip>
