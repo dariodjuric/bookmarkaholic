@@ -21,7 +21,7 @@ import {
   GripVertical,
   Trash2,
 } from 'lucide-react'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import BookmarkNode from './bookmark-node'
 import AddFolderDialog from './dialogs/add-folder-dialog'
 import DeleteDialog from './dialogs/delete-dialog'
@@ -31,12 +31,14 @@ interface FolderNodeProps {
   depth: number
 }
 
-export default function FolderNode({ folder, depth }: FolderNodeProps) {
+function FolderNode({ folder, depth }: FolderNodeProps) {
   const [isExpanded, setIsExpanded] = useState(true)
   const [isAddFolderOpen, setAddFolderOpen] = useState(false)
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
 
-  const dragOverFolderId = useBookmarkStore((state) => state.dragOverFolderId)
+  const isDragOverThis = useBookmarkStore(
+    (state) => state.dragOverFolderId === folder.id
+  )
   const startEditing = useBookmarkStore((state) => state.startEditing)
   const removeBookmark = useBookmarkStore((state) => state.removeBookmark)
   const addFolder = useBookmarkStore((state) => state.addFolder)
@@ -56,7 +58,6 @@ export default function FolderNode({ folder, depth }: FolderNodeProps) {
   )
 
   const isRoot = isRootFolder(folder.id)
-  const isDragOverThis = dragOverFolderId === folder.id
 
   const {
     isEditing,
@@ -260,3 +261,5 @@ export default function FolderNode({ folder, depth }: FolderNodeProps) {
     </div>
   )
 }
+
+export default memo(FolderNode)

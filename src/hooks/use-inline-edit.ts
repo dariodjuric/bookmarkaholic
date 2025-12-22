@@ -9,11 +9,11 @@ interface UseInlineEditOptions {
 }
 
 export function useInlineEdit({ bookmark, isRoot }: UseInlineEditOptions) {
-  const editingId = useBookmarkStore((state) => state.editingId)
+  const isEditing = useBookmarkStore(
+    (state) => state.editingId === bookmark.id
+  )
   const saveBookmarkEdit = useBookmarkStore((state) => state.saveBookmarkEdit)
   const cancelEditing = useBookmarkStore((state) => state.cancelEditing)
-
-  const isEditing = editingId === bookmark.id
 
   const [editTitle, setEditTitle] = useState(bookmark.title)
   const [editUrl, setEditUrl] = useState(

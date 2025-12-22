@@ -221,7 +221,10 @@ export const useBookmarkStore = create<BookmarkStore>((set, get) => ({
   dropIntoFolder: async (targetFolderId) => {
     const { draggedBookmarkOrFolder } = get()
 
-    if (!draggedBookmarkOrFolder || draggedBookmarkOrFolder.id === targetFolderId) {
+    if (
+      !draggedBookmarkOrFolder ||
+      draggedBookmarkOrFolder.id === targetFolderId
+    ) {
       set({ draggedBookmarkOrFolder: null, dragOverFolderId: null })
       return
     }
@@ -241,7 +244,9 @@ export const useBookmarkStore = create<BookmarkStore>((set, get) => ({
     }
 
     try {
-      await moveBookmark(draggedBookmarkOrFolder.id, { parentId: targetFolderId })
+      await moveBookmark(draggedBookmarkOrFolder.id, {
+        parentId: targetFolderId,
+      })
       await get().refreshBookmarks()
     } catch (err) {
       console.error('Failed to move bookmark:', err)

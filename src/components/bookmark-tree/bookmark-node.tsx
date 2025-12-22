@@ -11,7 +11,7 @@ import { cn } from '@/lib/utils'
 import { useBookmarkStore } from '@/stores/bookmark-store'
 import type { Bookmark } from '@/types/bookmark'
 import { ExternalLink, GripVertical, Trash2 } from 'lucide-react'
-import { useState } from 'react'
+import { memo, useState } from 'react'
 import DeleteDialog from './dialogs/delete-dialog'
 
 interface BookmarkNodeProps {
@@ -19,7 +19,7 @@ interface BookmarkNodeProps {
   depth: number
 }
 
-export default function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
+function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
   const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
 
   const startEditing = useBookmarkStore((state) => state.startEditing)
@@ -164,3 +164,5 @@ export default function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
     </div>
   )
 }
+
+export default memo(BookmarkNode)
