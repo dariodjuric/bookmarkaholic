@@ -1,18 +1,18 @@
-import { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import { Input } from '@/components/ui/input'
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
 
 interface AddFolderDialogProps {
-  open: boolean
-  onOpenChange: (open: boolean) => void
-  onSubmit: (folderName: string) => void
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  onSubmit: (folderName: string) => void;
 }
 
 export default function AddFolderDialog({
@@ -20,29 +20,29 @@ export default function AddFolderDialog({
   onOpenChange,
   onSubmit,
 }: AddFolderDialogProps) {
-  const [folderName, setFolderName] = useState('')
+  const [folderName, setFolderName] = useState('');
 
   // Reset state when dialog opens
   useEffect(() => {
     if (open) {
-      setFolderName('')
+      setFolderName('');
     }
-  }, [open])
+  }, [open]);
 
   const handleSubmit = () => {
     if (folderName.trim()) {
-      onSubmit(folderName.trim())
-      setFolderName('')
-      onOpenChange(false)
+      onSubmit(folderName.trim());
+      setFolderName('');
+      onOpenChange(false);
     }
-  }
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
-      e.preventDefault()
-      handleSubmit()
+      e.preventDefault();
+      handleSubmit();
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -67,5 +67,5 @@ export default function AddFolderDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

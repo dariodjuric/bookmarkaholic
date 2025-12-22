@@ -1,29 +1,31 @@
-import { Button } from '@/components/ui/button'
-import { useBookmarkKeyboardShortcuts } from '@/hooks/use-bookmark-keyboard-shortcuts'
-import { useBookmarkStore } from '@/stores/bookmark-store'
-import { BookmarkPlus, Loader2 } from 'lucide-react'
-import { useEffect } from 'react'
-import BookmarkTree from './bookmark-tree'
+import { Button } from '@/components/ui/button';
+import { useBookmarkKeyboardShortcuts } from '@/hooks/use-bookmark-keyboard-shortcuts';
+import { useBookmarkStore } from '@/stores/bookmark-store';
+import { BookmarkPlus, Loader2 } from 'lucide-react';
+import { useEffect } from 'react';
+import BookmarkTree from './bookmark-tree';
 
 export default function MainPage() {
-  const bookmarksOrFolders = useBookmarkStore((state) => state.bookmarksOrFolders)
-  const status = useBookmarkStore((state) => state.status)
-  const error = useBookmarkStore((state) => state.error)
-  const loadBookmarks = useBookmarkStore((state) => state.loadBookmarks)
-  const addBookmark = useBookmarkStore((state) => state.addBookmark)
+  const bookmarksOrFolders = useBookmarkStore(
+    (state) => state.bookmarksOrFolders
+  );
+  const status = useBookmarkStore((state) => state.status);
+  const error = useBookmarkStore((state) => state.error);
+  const loadBookmarks = useBookmarkStore((state) => state.loadBookmarks);
+  const addBookmark = useBookmarkStore((state) => state.addBookmark);
 
   useEffect(() => {
-    loadBookmarks()
-  }, [loadBookmarks])
+    loadBookmarks();
+  }, [loadBookmarks]);
 
-  useBookmarkKeyboardShortcuts()
+  useBookmarkKeyboardShortcuts();
 
   if (status === 'loading') {
     return (
       <div className="flex items-center justify-center py-12">
         <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
       </div>
-    )
+    );
   }
 
   if (status === 'error') {
@@ -38,7 +40,7 @@ export default function MainPage() {
           Retry
         </Button>
       </div>
-    )
+    );
   }
 
   return (
@@ -63,5 +65,5 @@ export default function MainPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

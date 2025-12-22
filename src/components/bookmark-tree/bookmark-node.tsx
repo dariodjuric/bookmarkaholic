@@ -1,37 +1,37 @@
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { useInlineEdit } from '@/hooks/use-inline-edit'
-import { getDepthPadding, getFaviconUrl } from '@/lib/bookmark-utils'
-import { cn } from '@/lib/utils'
-import { useBookmarkStore } from '@/stores/bookmark-store'
-import type { Bookmark } from '@/types/bookmark'
-import { ExternalLink, GripVertical, Trash2 } from 'lucide-react'
-import { memo, useState } from 'react'
-import DeleteDialog from './dialogs/delete-dialog'
+} from '@/components/ui/tooltip';
+import { useInlineEdit } from '@/hooks/use-inline-edit';
+import { getDepthPadding, getFaviconUrl } from '@/lib/bookmark-utils';
+import { cn } from '@/lib/utils';
+import { useBookmarkStore } from '@/stores/bookmark-store';
+import type { Bookmark } from '@/types/bookmark';
+import { ExternalLink, GripVertical, Trash2 } from 'lucide-react';
+import { memo, useState } from 'react';
+import DeleteDialog from './dialogs/delete-dialog';
 
 interface BookmarkNodeProps {
-  bookmark: Bookmark
-  depth: number
+  bookmark: Bookmark;
+  depth: number;
 }
 
 function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
-  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false)
+  const [isDeleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
-  const startEditing = useBookmarkStore((state) => state.startEditing)
-  const removeBookmark = useBookmarkStore((state) => state.removeBookmark)
-  const startDragging = useBookmarkStore((state) => state.startDragging)
-  const endDrag = useBookmarkStore((state) => state.endDrag)
+  const startEditing = useBookmarkStore((state) => state.startEditing);
+  const removeBookmark = useBookmarkStore((state) => state.removeBookmark);
+  const startDragging = useBookmarkStore((state) => state.startDragging);
+  const endDrag = useBookmarkStore((state) => state.endDrag);
   const setHoveredBookmark = useBookmarkStore(
     (state) => state.setHoveredBookmark
-  )
+  );
   const clearHoveredBookmark = useBookmarkStore(
     (state) => state.clearHoveredBookmark
-  )
+  );
 
   const {
     isEditing,
@@ -46,16 +46,16 @@ function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
   } = useInlineEdit({
     bookmark,
     isRoot: false,
-  })
+  });
 
   const handleDragStart = (e: React.DragEvent) => {
-    startDragging(bookmark)
-    e.dataTransfer.effectAllowed = 'move'
-  }
+    startDragging(bookmark);
+    e.dataTransfer.effectAllowed = 'move';
+  };
 
   const onClickLink = () => {
-    window.open(bookmark.url, '_blank', 'noopener,noreferrer')
-  }
+    window.open(bookmark.url, '_blank', 'noopener,noreferrer');
+  };
 
   return (
     <div className="select-none">
@@ -143,8 +143,8 @@ function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
                 size="icon"
                 className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  setDeleteDialogOpen(true)
+                  e.stopPropagation();
+                  setDeleteDialogOpen(true);
                 }}
               >
                 <Trash2 className="size-4 text-destructive" />
@@ -162,7 +162,7 @@ function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
         onConfirm={() => removeBookmark(bookmark.id)}
       />
     </div>
-  )
+  );
 }
 
-export default memo(BookmarkNode)
+export default memo(BookmarkNode);

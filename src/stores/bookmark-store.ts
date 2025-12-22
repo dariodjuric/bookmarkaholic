@@ -6,59 +6,59 @@ import {
   moveBookmark,
   sortFolderByName,
   updateBookmark,
-} from '@/lib/chrome-bookmarks'
-import type { BookmarkOrFolder, Folder } from '@/types/bookmark'
-import { isFolder } from '@/types/bookmark'
-import { create } from 'zustand'
+} from '@/lib/chrome-bookmarks';
+import type { BookmarkOrFolder, Folder } from '@/types/bookmark';
+import { isFolder } from '@/types/bookmark';
+import { create } from 'zustand';
 
 interface BookmarkState {
   // Core data
-  bookmarksOrFolders: BookmarkOrFolder[]
+  bookmarksOrFolders: BookmarkOrFolder[];
 
   // Loading & error states
-  status: 'idle' | 'loading' | 'error'
-  error: string | null
+  status: 'idle' | 'loading' | 'error';
+  error: string | null;
 
   // UI interaction states
-  editingId: string | null
-  draggedBookmarkOrFolder: BookmarkOrFolder | null
-  dragOverFolderId: string | null
-  hoveredId: string | null
+  editingId: string | null;
+  draggedBookmarkOrFolder: BookmarkOrFolder | null;
+  dragOverFolderId: string | null;
+  hoveredId: string | null;
 }
 
 interface BookmarkActions {
   // Data loading
-  loadBookmarks: () => Promise<void>
-  refreshBookmarks: () => Promise<void>
+  loadBookmarks: () => Promise<void>;
+  refreshBookmarks: () => Promise<void>;
 
   // Bookmark CRUD
-  addBookmark: (parentId?: string) => Promise<void>
-  addFolder: (parentId: string, folderName: string) => Promise<void>
+  addBookmark: (parentId?: string) => Promise<void>;
+  addFolder: (parentId: string, folderName: string) => Promise<void>;
   saveBookmarkEdit: (
     id: string,
     updates: { title?: string; url?: string }
-  ) => Promise<void>
-  removeBookmark: (id: string) => Promise<void>
-  sortFolderContents: (folderId: string) => Promise<void>
+  ) => Promise<void>;
+  removeBookmark: (id: string) => Promise<void>;
+  sortFolderContents: (folderId: string) => Promise<void>;
 
   // Editing
-  startEditing: (bookmarkId: string) => void
-  cancelEditing: () => void
-  editHoveredBookmark: () => void
+  startEditing: (bookmarkId: string) => void;
+  cancelEditing: () => void;
+  editHoveredBookmark: () => void;
 
   // Drag & drop
-  startDragging: (bookmarkOrFolder: BookmarkOrFolder) => void
-  hoverDropTarget: (folderId: string) => void
-  clearDropTarget: () => void
-  dropIntoFolder: (targetFolderId: string) => Promise<void>
-  endDrag: () => void
+  startDragging: (bookmarkOrFolder: BookmarkOrFolder) => void;
+  hoverDropTarget: (folderId: string) => void;
+  clearDropTarget: () => void;
+  dropIntoFolder: (targetFolderId: string) => Promise<void>;
+  endDrag: () => void;
 
   // Hover (for keyboard shortcuts)
-  setHoveredBookmark: (bookmarkId: string) => void
-  clearHoveredBookmark: () => void
+  setHoveredBookmark: (bookmarkId: string) => void;
+  clearHoveredBookmark: () => void;
 }
 
-type BookmarkStore = BookmarkState & BookmarkActions
+type BookmarkStore = BookmarkState & BookmarkActions;
 
 // Helper to find a bookmark or folder by ID in the tree
 const findBookmarkOrFolderById = (
@@ -66,26 +66,26 @@ const findBookmarkOrFolderById = (
   bookmarksOrFolders: BookmarkOrFolder[]
 ): BookmarkOrFolder | null => {
   for (const bookmarkOrFolder of bookmarksOrFolders) {
-    if (bookmarkOrFolder.id === id) return bookmarkOrFolder
+    if (bookmarkOrFolder.id === id) return bookmarkOrFolder;
     if (isFolder(bookmarkOrFolder)) {
-      const found = findBookmarkOrFolderById(id, bookmarkOrFolder.children)
-      if (found) return found
+      const found = findBookmarkOrFolderById(id, bookmarkOrFolder.children);
+      if (found) return found;
     }
   }
-  return null
-}
+  return null;
+};
 
 // Helper to check if a bookmark is a descendant of another
 const isDescendant = (parent: Folder, childId: string): boolean => {
-  if (parent.id === childId) return true
+  if (parent.id === childId) return true;
   return parent.children.some((child) => {
-    if (child.id === childId) return true
+    if (child.id === childId) return true;
     if (isFolder(child)) {
-      return isDescendant(child, childId)
+      return isDescendant(child, childId);
     }
-    return false
-  })
-}
+    return false;
+  });
+};
 
 export const useBookmarkStore = create<BookmarkStore>((set, get) => ({
   // Initial state
@@ -100,138 +100,138 @@ export const useBookmarkStore = create<BookmarkStore>((set, get) => ({
   // Data loading actions
   loadBookmarks: async () => {
     try {
-      set({ status: 'loading', error: null })
-      const data = await fetchBookmarks()
-      set({ bookmarksOrFolders: data, status: 'idle' })
+      set({ status: 'loading', error: null });
+      const data = await fetchBookmarks();
+      set({ bookmarksOrFolders: data, status: 'idle' });
     } catch (err) {
       set({
         status: 'error',
         error: err instanceof Error ? err.message : 'Failed to load bookmarks',
-      })
+      });
     }
   },
 
   refreshBookmarks: async () => {
     try {
-      const data = await fetchBookmarks()
-      set({ bookmarksOrFolders: data })
+      const data = await fetchBookmarks();
+      set({ bookmarksOrFolders: data });
     } catch (err) {
-      console.error('Failed to refresh bookmarks:', err)
+      console.error('Failed to refresh bookmarks:', err);
     }
   },
 
   // Bookmark CRUD actions
   addBookmark: async (parentId) => {
     try {
-      const { bookmarksOrFolders } = get()
-      const targetParentId = parentId || bookmarksOrFolders[0]?.id || '1'
+      const { bookmarksOrFolders } = get();
+      const targetParentId = parentId || bookmarksOrFolders[0]?.id || '1';
       await createBookmark(
         targetParentId,
         'New Bookmark',
         'https://example.com'
-      )
-      await get().refreshBookmarks()
+      );
+      await get().refreshBookmarks();
     } catch (err) {
-      console.error('Failed to create bookmark:', err)
+      console.error('Failed to create bookmark:', err);
     }
   },
 
   addFolder: async (parentId, folderName) => {
     try {
-      await createBookmark(parentId, folderName)
-      await get().refreshBookmarks()
+      await createBookmark(parentId, folderName);
+      await get().refreshBookmarks();
     } catch (err) {
-      console.error('Failed to create folder:', err)
+      console.error('Failed to create folder:', err);
     }
   },
 
   saveBookmarkEdit: async (id, updates) => {
-    if (isRootFolder(id)) return
+    if (isRootFolder(id)) return;
 
     try {
       await updateBookmark(id, {
         title: updates.title,
         url: updates.url,
-      })
-      set({ editingId: null })
-      await get().refreshBookmarks()
+      });
+      set({ editingId: null });
+      await get().refreshBookmarks();
     } catch (err) {
-      console.error('Failed to update bookmark:', err)
+      console.error('Failed to update bookmark:', err);
     }
   },
 
   removeBookmark: async (id) => {
-    if (isRootFolder(id)) return
+    if (isRootFolder(id)) return;
 
     try {
-      const { bookmarksOrFolders } = get()
-      const bookmarkOrFolder = findBookmarkOrFolderById(id, bookmarksOrFolders)
+      const { bookmarksOrFolders } = get();
+      const bookmarkOrFolder = findBookmarkOrFolderById(id, bookmarksOrFolders);
       if (bookmarkOrFolder) {
-        await deleteBookmark(bookmarkOrFolder)
-        await get().refreshBookmarks()
+        await deleteBookmark(bookmarkOrFolder);
+        await get().refreshBookmarks();
       }
     } catch (err) {
-      console.error('Failed to delete bookmark:', err)
+      console.error('Failed to delete bookmark:', err);
     }
   },
 
   sortFolderContents: async (folderId) => {
     try {
-      await sortFolderByName(folderId)
-      await get().refreshBookmarks()
+      await sortFolderByName(folderId);
+      await get().refreshBookmarks();
     } catch (err) {
-      console.error('Failed to sort folder:', err)
+      console.error('Failed to sort folder:', err);
     }
   },
 
   // Editing actions
   startEditing: (bookmarkId) => {
-    if (isRootFolder(bookmarkId)) return
-    set({ editingId: bookmarkId })
+    if (isRootFolder(bookmarkId)) return;
+    set({ editingId: bookmarkId });
   },
 
   cancelEditing: () => {
-    set({ editingId: null })
+    set({ editingId: null });
   },
 
   editHoveredBookmark: () => {
-    const { hoveredId, editingId } = get()
+    const { hoveredId, editingId } = get();
     if (!editingId && hoveredId && !isRootFolder(hoveredId)) {
-      set({ editingId: hoveredId })
+      set({ editingId: hoveredId });
     }
   },
 
   // Drag & drop actions
   startDragging: (bookmarkOrFolder) => {
-    if (isRootFolder(bookmarkOrFolder.id)) return
-    set({ draggedBookmarkOrFolder: bookmarkOrFolder })
+    if (isRootFolder(bookmarkOrFolder.id)) return;
+    set({ draggedBookmarkOrFolder: bookmarkOrFolder });
   },
 
   hoverDropTarget: (folderId) => {
-    const { draggedBookmarkOrFolder } = get()
+    const { draggedBookmarkOrFolder } = get();
     if (draggedBookmarkOrFolder && draggedBookmarkOrFolder.id !== folderId) {
-      set({ dragOverFolderId: folderId })
+      set({ dragOverFolderId: folderId });
     }
   },
 
   clearDropTarget: () => {
-    set({ dragOverFolderId: null })
+    set({ dragOverFolderId: null });
   },
 
   dropIntoFolder: async (targetFolderId) => {
-    const { draggedBookmarkOrFolder } = get()
+    const { draggedBookmarkOrFolder } = get();
 
     if (
       !draggedBookmarkOrFolder ||
       draggedBookmarkOrFolder.id === targetFolderId
     ) {
-      set({ draggedBookmarkOrFolder: null, dragOverFolderId: null })
-      return
+      set({ draggedBookmarkOrFolder: null, dragOverFolderId: null });
+      return;
     }
 
     if (isRootFolder(draggedBookmarkOrFolder.id)) {
-      set({ draggedBookmarkOrFolder: null, dragOverFolderId: null })
-      return
+      set({ draggedBookmarkOrFolder: null, dragOverFolderId: null });
+      return;
     }
 
     // Prevent dropping a folder into itself or its descendants
@@ -239,32 +239,32 @@ export const useBookmarkStore = create<BookmarkStore>((set, get) => ({
       isFolder(draggedBookmarkOrFolder) &&
       isDescendant(draggedBookmarkOrFolder, targetFolderId)
     ) {
-      set({ draggedBookmarkOrFolder: null, dragOverFolderId: null })
-      return
+      set({ draggedBookmarkOrFolder: null, dragOverFolderId: null });
+      return;
     }
 
     try {
       await moveBookmark(draggedBookmarkOrFolder.id, {
         parentId: targetFolderId,
-      })
-      await get().refreshBookmarks()
+      });
+      await get().refreshBookmarks();
     } catch (err) {
-      console.error('Failed to move bookmark:', err)
+      console.error('Failed to move bookmark:', err);
     }
 
-    set({ draggedBookmarkOrFolder: null, dragOverFolderId: null })
+    set({ draggedBookmarkOrFolder: null, dragOverFolderId: null });
   },
 
   endDrag: () => {
-    set({ draggedBookmarkOrFolder: null, dragOverFolderId: null })
+    set({ draggedBookmarkOrFolder: null, dragOverFolderId: null });
   },
 
   // Hover actions
   setHoveredBookmark: (bookmarkId) => {
-    set({ hoveredId: bookmarkId })
+    set({ hoveredId: bookmarkId });
   },
 
   clearHoveredBookmark: () => {
-    set({ hoveredId: null })
+    set({ hoveredId: null });
   },
-}))
+}));

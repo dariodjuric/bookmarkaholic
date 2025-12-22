@@ -1,4 +1,4 @@
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -6,25 +6,25 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog'
-import type { Bookmark, Folder } from '@/types/bookmark'
-import { countDescendants } from '@/lib/bookmark-utils'
+} from '@/components/ui/dialog';
+import type { Bookmark, Folder } from '@/types/bookmark';
+import { countDescendants } from '@/lib/bookmark-utils';
 
 type DeleteDialogProps =
   | {
-      bookmark: Bookmark
-      folder?: never
-      open: boolean
-      onOpenChange: (open: boolean) => void
-      onConfirm: () => void
+      bookmark: Bookmark;
+      folder?: never;
+      open: boolean;
+      onOpenChange: (open: boolean) => void;
+      onConfirm: () => void;
     }
   | {
-      bookmark?: never
-      folder: Folder
-      open: boolean
-      onOpenChange: (open: boolean) => void
-      onConfirm: () => void
-    }
+      bookmark?: never;
+      folder: Folder;
+      open: boolean;
+      onOpenChange: (open: boolean) => void;
+      onConfirm: () => void;
+    };
 
 export default function DeleteDialog({
   bookmark: _bookmark,
@@ -33,18 +33,18 @@ export default function DeleteDialog({
   onOpenChange,
   onConfirm,
 }: DeleteDialogProps) {
-  const isFolder = !!folder
+  const isFolder = !!folder;
 
   const getDescription = () => {
     if (!isFolder) {
-      return 'This bookmark will be permanently deleted.'
+      return 'This bookmark will be permanently deleted.';
     }
-    const count = countDescendants(folder!)
+    const count = countDescendants(folder!);
     if (count > 0) {
-      return `This folder contains ${count} bookmark${count === 1 ? '' : 's'}. All items will be permanently deleted.`
+      return `This folder contains ${count} bookmark${count === 1 ? '' : 's'}. All items will be permanently deleted.`;
     }
-    return 'This empty folder will be permanently deleted.'
-  }
+    return 'This empty folder will be permanently deleted.';
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -61,8 +61,8 @@ export default function DeleteDialog({
             variant="destructive"
             autoFocus
             onClick={() => {
-              onConfirm()
-              onOpenChange(false)
+              onConfirm();
+              onOpenChange(false);
             }}
           >
             Delete
@@ -70,5 +70,5 @@ export default function DeleteDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

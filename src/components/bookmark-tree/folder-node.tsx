@@ -1,17 +1,17 @@
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
-} from '@/components/ui/tooltip'
-import { useInlineEdit } from '@/hooks/use-inline-edit'
-import { getDepthPadding } from '@/lib/bookmark-utils'
-import { isRootFolder } from '@/lib/chrome-bookmarks'
-import { cn } from '@/lib/utils'
-import { useBookmarkStore } from '@/stores/bookmark-store'
-import type { Folder } from '@/types/bookmark'
-import { isFolder } from '@/types/bookmark'
+} from '@/components/ui/tooltip';
+import { useInlineEdit } from '@/hooks/use-inline-edit';
+import { getDepthPadding } from '@/lib/bookmark-utils';
+import { isRootFolder } from '@/lib/chrome-bookmarks';
+import { cn } from '@/lib/utils';
+import { useBookmarkStore } from '@/stores/bookmark-store';
+import type { Folder } from '@/types/bookmark';
+import { isFolder } from '@/types/bookmark';
 import {
   ArrowDownAZ,
   ChevronRight,
@@ -20,44 +20,44 @@ import {
   FolderPlus,
   GripVertical,
   Trash2,
-} from 'lucide-react'
-import { memo, useState } from 'react'
-import BookmarkNode from './bookmark-node'
-import AddFolderDialog from './dialogs/add-folder-dialog'
-import DeleteDialog from './dialogs/delete-dialog'
+} from 'lucide-react';
+import { memo, useState } from 'react';
+import BookmarkNode from './bookmark-node';
+import AddFolderDialog from './dialogs/add-folder-dialog';
+import DeleteDialog from './dialogs/delete-dialog';
 
 interface FolderNodeProps {
-  folder: Folder
-  depth: number
+  folder: Folder;
+  depth: number;
 }
 
 function FolderNode({ folder, depth }: FolderNodeProps) {
-  const [isExpanded, setIsExpanded] = useState(true)
-  const [isAddFolderOpen, setAddFolderOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
+  const [isExpanded, setIsExpanded] = useState(true);
+  const [isAddFolderOpen, setAddFolderOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
 
   const isDragOverThis = useBookmarkStore(
     (state) => state.dragOverFolderId === folder.id
-  )
-  const startEditing = useBookmarkStore((state) => state.startEditing)
-  const removeBookmark = useBookmarkStore((state) => state.removeBookmark)
-  const addFolder = useBookmarkStore((state) => state.addFolder)
+  );
+  const startEditing = useBookmarkStore((state) => state.startEditing);
+  const removeBookmark = useBookmarkStore((state) => state.removeBookmark);
+  const addFolder = useBookmarkStore((state) => state.addFolder);
   const sortFolderContents = useBookmarkStore(
     (state) => state.sortFolderContents
-  )
-  const startDragging = useBookmarkStore((state) => state.startDragging)
-  const hoverDropTarget = useBookmarkStore((state) => state.hoverDropTarget)
-  const clearDropTarget = useBookmarkStore((state) => state.clearDropTarget)
-  const dropIntoFolder = useBookmarkStore((state) => state.dropIntoFolder)
-  const endDrag = useBookmarkStore((state) => state.endDrag)
+  );
+  const startDragging = useBookmarkStore((state) => state.startDragging);
+  const hoverDropTarget = useBookmarkStore((state) => state.hoverDropTarget);
+  const clearDropTarget = useBookmarkStore((state) => state.clearDropTarget);
+  const dropIntoFolder = useBookmarkStore((state) => state.dropIntoFolder);
+  const endDrag = useBookmarkStore((state) => state.endDrag);
   const setHoveredBookmark = useBookmarkStore(
     (state) => state.setHoveredBookmark
-  )
+  );
   const clearHoveredBookmark = useBookmarkStore(
     (state) => state.clearHoveredBookmark
-  )
+  );
 
-  const isRoot = isRootFolder(folder.id)
+  const isRoot = isRootFolder(folder.id);
 
   const {
     isEditing,
@@ -70,30 +70,30 @@ function FolderNode({ folder, depth }: FolderNodeProps) {
   } = useInlineEdit({
     bookmark: folder,
     isRoot,
-  })
+  });
 
   const handleDragStart = (e: React.DragEvent) => {
     if (isRoot) {
-      e.preventDefault()
-      return
+      e.preventDefault();
+      return;
     }
-    startDragging(folder)
-    e.dataTransfer.effectAllowed = 'move'
-  }
+    startDragging(folder);
+    e.dataTransfer.effectAllowed = 'move';
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-    hoverDropTarget(folder.id)
-  }
+    e.preventDefault();
+    hoverDropTarget(folder.id);
+  };
 
   const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    dropIntoFolder(folder.id)
-  }
+    e.preventDefault();
+    dropIntoFolder(folder.id);
+  };
 
   const handleDragLeave = () => {
-    clearDropTarget()
-  }
+    clearDropTarget();
+  };
 
   return (
     <div className="select-none">
@@ -186,8 +186,8 @@ function FolderNode({ folder, depth }: FolderNodeProps) {
                   size="icon"
                   className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    sortFolderContents(folder.id)
+                    e.stopPropagation();
+                    sortFolderContents(folder.id);
                   }}
                 >
                   <ArrowDownAZ className="size-4 text-muted-foreground" />
@@ -202,8 +202,8 @@ function FolderNode({ folder, depth }: FolderNodeProps) {
                   size="icon"
                   className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
                   onClick={(e) => {
-                    e.stopPropagation()
-                    setAddFolderOpen(true)
+                    e.stopPropagation();
+                    setAddFolderOpen(true);
                   }}
                 >
                   <FolderPlus className="size-4 text-muted-foreground" />
@@ -222,8 +222,8 @@ function FolderNode({ folder, depth }: FolderNodeProps) {
                 size="icon"
                 className="size-7 opacity-0 transition-opacity group-hover:opacity-100"
                 onClick={(e) => {
-                  e.stopPropagation()
-                  setIsDeleteDialogOpen(true)
+                  e.stopPropagation();
+                  setIsDeleteDialogOpen(true);
                 }}
               >
                 <Trash2 className="size-4 text-destructive" />
@@ -259,7 +259,7 @@ function FolderNode({ folder, depth }: FolderNodeProps) {
         onConfirm={() => removeBookmark(folder.id)}
       />
     </div>
-  )
+  );
 }
 
-export default memo(FolderNode)
+export default memo(FolderNode);

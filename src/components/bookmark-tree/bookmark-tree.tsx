@@ -1,10 +1,10 @@
-import type { BookmarkOrFolder } from '@/types/bookmark'
-import { isFolder } from '@/types/bookmark'
-import BookmarkNodeComponent from './bookmark-node'
-import FolderNode from './folder-node'
+import type { BookmarkOrFolder } from '@/types/bookmark';
+import { isFolder } from '@/types/bookmark';
+import BookmarkNodeComponent from './bookmark-node';
+import FolderNode from './folder-node';
 
 interface BookmarkTreeProps {
-  bookmarksOrFolders: BookmarkOrFolder[]
+  bookmarksOrFolders: BookmarkOrFolder[];
 }
 
 export default function BookmarkTree({
@@ -20,5 +20,5 @@ export default function BookmarkTree({
         )
       )}
     </>
-  )
+  );
 }
