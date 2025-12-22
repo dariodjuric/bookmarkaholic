@@ -117,9 +117,9 @@ function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
             onClick={() => startEditing(bookmark.id)}
             className="flex flex-1 items-center gap-2 text-left min-w-0 cursor-pointer"
           >
-            <span className="truncate max-w-48">{bookmark.title}</span>
+            <span className="truncate max-w-56">{bookmark.title}</span>
             <div className="flex items-center gap-1 min-w-0">
-              <span className="truncate max-w-8/12 text-xs text-muted-foreground">
+              <span className="truncate max-w-96 text-xs text-muted-foreground">
                 {bookmark.url}
               </span>
               <Tooltip>
