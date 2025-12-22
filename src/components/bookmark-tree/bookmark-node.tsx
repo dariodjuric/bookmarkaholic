@@ -6,8 +6,8 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useInlineEdit } from '@/hooks/use-inline-edit';
-import { getDepthPadding } from '@/lib/bookmark-utils';
-import { cn } from '@/lib/utils';
+import { getDepthPadding } from '@/lib/depth-calculation';
+import { cn } from '@/lib/tailwind';
 import { useBookmarkStore } from '@/stores/bookmark-store';
 import type { Bookmark } from '@/types/bookmark';
 import { ExternalLink, GripVertical, Trash2 } from 'lucide-react';

@@ -6,9 +6,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { useInlineEdit } from '@/hooks/use-inline-edit';
-import { getDepthPadding } from '@/lib/bookmark-utils';
 import { isRootFolder } from '@/lib/chrome-bookmarks';
-import { cn } from '@/lib/utils';
+import { getDepthPadding } from '@/lib/depth-calculation';
+import { cn } from '@/lib/tailwind';
 import { useBookmarkStore } from '@/stores/bookmark-store';
 import type { Folder } from '@/types/bookmark';
 import { isFolder } from '@/types/bookmark';

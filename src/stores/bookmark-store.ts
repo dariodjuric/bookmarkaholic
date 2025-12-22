@@ -28,11 +28,10 @@ interface BookmarkState {
 
 interface BookmarkActions {
   // Data loading
-  loadBookmarks: () => Promise<void>;
+  openPage: () => Promise<void>;
   refreshBookmarks: () => Promise<void>;
 
   // Bookmark CRUD
-  addBookmark: (parentId?: string) => Promise<void>;
   addFolder: (parentId: string, folderName: string) => Promise<void>;
   saveEdit: (
     id: string,
@@ -106,7 +105,7 @@ export const useBookmarkStore = create<BookmarkStore>((set, get) => ({
   hoveredId: null,
 
   // Data loading actions
-  loadBookmarks: async () => {
+  openPage: async () => {
     try {
       set({ status: 'loading', error: null });
       const data = await fetchBookmarks();
@@ -129,21 +128,6 @@ export const useBookmarkStore = create<BookmarkStore>((set, get) => ({
   },
 
   // Bookmark CRUD actions
-  addBookmark: async (parentId) => {
-    try {
-      const { bookmarksOrFolders } = get();
-      const targetParentId = parentId || bookmarksOrFolders[0]?.id || '1';
-      await createBookmark(
-        targetParentId,
-        'New Bookmark',
-        'https://example.com'
-      );
-      await get().refreshBookmarks();
-    } catch (err) {
-      console.error('Failed to create bookmark:', err);
-    }
-  },
-
   addFolder: async (parentId, folderName) => {
     try {
       await createBookmark(parentId, folderName);

@@ -7,8 +7,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import type { Bookmark, Folder } from '@/types/bookmark';
-import { countDescendants } from '@/lib/bookmark-utils';
+import { isFolder, type Bookmark, type Folder } from '@/types/bookmark';
 
 type DeleteDialogProps =
   | {
@@ -71,4 +70,13 @@ export default function DeleteDialog({
       </DialogContent>
     </Dialog>
   );
+}
+
+export function countDescendants(folder: Folder): number {
+  return folder.children.reduce((count, child) => {
+    if (isFolder(child)) {
+      return count + 1 + countDescendants(child);
+    }
+    return count + 1;
+  }, 0);
 }
