@@ -53,6 +53,10 @@ function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
     e.dataTransfer.effectAllowed = 'move'
   }
 
+  const onClickLink = () => {
+    window.open(bookmark.url, '_blank', 'noopener,noreferrer')
+  }
+
   return (
     <div className="select-none">
       <div
@@ -120,14 +124,10 @@ function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
               </span>
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <span
-                    onClick={(e) => {
-                      e.stopPropagation()
-                      window.open(bookmark.url, '_blank', 'noopener,noreferrer')
-                    }}
-                  >
-                    <ExternalLink className="size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground" />
-                  </span>
+                  <ExternalLink
+                    className="size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground"
+                    onClick={onClickLink}
+                  />
                 </TooltipTrigger>
                 <TooltipContent>Open in new tab</TooltipContent>
               </Tooltip>
