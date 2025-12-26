@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in contributing to Bookmarkaholic!
+Thanks for your interest in contributing to Bookmark Breeze!
 
 ## Getting Started
 

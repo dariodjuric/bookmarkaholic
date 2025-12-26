@@ -1,4 +1,4 @@
-# Bookmarkaholic
+# Bookmark Breeze
 
 A Chrome extension bookmark manager built with React, Vite, and Tailwind CSS.
 

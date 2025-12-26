@@ -11,7 +11,7 @@ createRoot(document.getElementById('root')!).render(
         <div className="container mx-auto max-w-6xl p-6 flex flex-col gap-6">
           <div className="flex flex-col items-center justify-center gap-1">
             <h1 className="text-4xl font-bold text-foreground">
-              Bookmarkaholic
+              Bookmark Breeze
             </h1>
             <p className="text-sm text-muted-foreground">
               Curate your links at lightning speed
