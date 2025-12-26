@@ -116,26 +116,31 @@ function BookmarkNode({ bookmark, depth }: BookmarkNodeProps) {
             </Button>
           </div>
         ) : (
-          <button
-            onClick={() => startEditing(bookmark.id)}
-            className="flex flex-1 items-center gap-2 text-left min-w-0 cursor-pointer"
-          >
-            <span className="truncate max-w-56">{bookmark.title}</span>
+          <div className="flex flex-1 items-center gap-2 text-left min-w-0">
+            <button
+              onClick={() => startEditing(bookmark.id)}
+              className="truncate max-w-56 cursor-pointer hover:underline"
+            >
+              {bookmark.title}
+            </button>
             <div className="flex items-center gap-1 min-w-0">
-              <span className="truncate max-w-96 text-xs text-muted-foreground">
+              <button
+                onClick={() => startEditing(bookmark.id)}
+                className="truncate max-w-96 text-xs text-muted-foreground cursor-pointer hover:underline"
+              >
                 {bookmark.url}
-              </span>
+              </button>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <ExternalLink
-                    className="size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground"
+                    className="size-3.5 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 hover:text-foreground cursor-pointer"
                     onClick={onClickLink}
                   />
                 </TooltipTrigger>
                 <TooltipContent>Open in new tab</TooltipContent>
               </Tooltip>
             </div>
-          </button>
+          </div>
         )}
 
         {!isEditing && (
