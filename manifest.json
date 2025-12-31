@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Bookmark Breeze",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Curate your links at lightning speed.",
   "permissions": ["bookmarks", "storage"],
   "action": {
